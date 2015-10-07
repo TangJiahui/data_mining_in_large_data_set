@@ -13,22 +13,22 @@ if __name__ == "__main__":
     num_of_hash = 5
     permutations = []
     for i in range(1, num_of_hash):
-        permutations.append(np.random.randint(0,20001,20001)) # a list of hash permutations
+        arr = np.arange(20001)
+        np.random.shuffle(arr)
+        permutations.append(arr) # a list of hash permutations
 
     for line in sys.stdin:
         line = line.strip()
         video_id = int(line[6:15])
-        shingles = np.fromstring(line[16:], sep=" ")
+        shingles = np.unique(np.fromstring(line[16:], dtype=int, sep=" "))
 
         signature = []
 
         for i in permutations:
-            for j in range(len(i)+1):
-                if float(i[j]) in shingles:
+            for j in range(len(i)):
+                if i[j] in shingles:     
                     signature.append(j+1)
                     break
 
         print (video_id, signature)
-
-
         
