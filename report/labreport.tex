@@ -1,0 +1,59 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[pdftex]{hyperref}
+
+% Lengths and indenting
+\setlength{\textwidth}{16.5cm}
+\setlength{\marginparwidth}{1.5cm}
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{0.15cm}
+\setlength{\textheight}{22cm}
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0cm}
+\setlength{\headsep}{0cm}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+\title{Data Mining: Learning from Large Data Sets - Fall Semester 2015}
+\author{jtang@student.ethz.ch\\ ychng@student.ethz.ch}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Approximate near-duplicate search using Locality Sensitive Hashing} 
+
+\section*{1. Mapper}
+In the mapper, we read in video data by lines and process them in parallel. We picked a number 1000 hash functions for min-hash permutations. Then we randomly shuffle the 20001 shingles that appeared in the data. The occurrence of shingles after shuffle is the permutation, with its index i indicating its sequence in the permutation. 
+
+$\linebreak$
+After that, we check all the shingles in permutation one by one to decide whether it is in the list of shingles that we read in from system’s standard input. The first shingle number in permutation that appears in the list of shingles of that particular video\_id is exactly the first occurrence of 1 under min-hash function. Thus, we note down its index number +1 as the hash result. In this way, we could construct a column vector of this particular video\_id’s signature matrix.
+
+$\linebreak$
+By dividing the vector of signature matrix into b tuples with r elements respectively, we could partition the signature matrix into different bands.
+
+$\linebreak$
+We choose total hash function $n$ to be $1000$, $b = 50$ and $r = 20$.As the threshold t that defines how similar documents have to be for them to be defined as near duplicates was setted to be $90\%$. 
+
+$\linebreak$
+We tried to pick different b and r for several times and determine the best set of parameter would be 
+Thus we picked this $b = 50$ and $r = 20$ such that $b* r = 1000$. And the threshold t is approximately $\frac{1}{b}^{\frac{1}{r}} = (0.05)^{\frac{1}{50}} = 0.84.$ Here we select $b$ and $r$ to produce a slightly lower threshold, because the we want to avoid false negative, so that it could produce a higher recall.[1]
+
+$\linebreak$
+Previously, we tried use $b = 20$ and $r = 50$, which is a higher threshold around $0.94$, the recall would decrease to around $0.61$.
+
+$\linebreak$
+After that, the (key, value) pair returned by mapper to reducer contains video\_id, LSH hash result as well as that the raw data about shingles. 
+
+\section*{2. Reducer}
+In reducer, we construct candidate pair by choosing those videos that has at least one band falling into the same category. For those candidate pairs, we go to the documents and compare the Jaccard similarity by using raw data of shingles that given by mapper output, we could calculate and print out the near duplicates pairs.
+
+\section*{3. Work Contribution}
+Team member1 Jiahui is mainly responsible for the constructing of the mapper and report writing. And team member2 Yongxien focuses on the reducer part, as well as changing and testing different sets of parameters. 
+
+\section*{References}
+[1]Rajaraman, Anand, and Jeffrey D. Ullman. "Finding Similar Items." Mining of Massive Datasets. New York, N.Y.: Cambridge UP, 2012. 72. Print.
+\end{document}
